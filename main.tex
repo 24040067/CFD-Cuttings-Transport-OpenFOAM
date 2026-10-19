@@ -1,0 +1,90 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\title{\textbf{Governing Equations for Solid-Liquid Multiphase Flow in an Eccentric Horizontal Wellbore}}
+\author{\textbf{FYP Research Methodology}}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Governing Transport Equations (Eulerian--Eulerian Framework)}
+To simulate non-Newtonian drilling fluid and solid cuttings transport in a 3D eccentric horizontal annulus, an Eulerian--Eulerian two-fluid model is adopted. Both the continuous drilling mud phase ($l$) and the dispersed solid cuttings phase ($s$) are modeled as interpenetrating continua.
+
+\subsection{Phase Conservation of Mass (Continuity Equations)}
+Assuming incompressible liquid ($l$) and solid ($s$) phases, mass conservation is expressed as:
+\begin{equation}
+\frac{\partial}{\partial t} (\alpha_l \rho_l) + \nabla \cdot (\alpha_l \rho_l \mathbf{v}_l) = 0
+\end{equation}
+
+\begin{equation}
+\frac{\partial}{\partial t} (\alpha_s \rho_s) + \nabla \cdot (\alpha_s \rho_s \mathbf{v}_s) = 0
+\end{equation}
+where $\alpha_l$ and $\alpha_s$ denote the phase volume fractions, satisfying the space-occupying constraint:
+\begin{equation}
+\alpha_l + \alpha_s = 1
+\end{equation}
+
+\subsection{Phase Conservation of Momentum}
+The 3D Navier--Stokes momentum transport equations for the liquid and solid phases include pressure gradients, viscous stress tensors, gravity, and interphase drag momentum exchange:
+
+\paragraph{Liquid Phase Momentum:}
+\begin{equation}
+\frac{\partial}{\partial t}(\alpha_l \rho_l \mathbf{v}_l) + \nabla \cdot (\alpha_l \rho_l \mathbf{v}_l \mathbf{v}_l) = -\alpha_l \nabla P + \nabla \cdot \boldsymbol{\tau}_l + \alpha_l \rho_l \mathbf{g} + K_{ls}(\mathbf{v}_s - \mathbf{v}_l)
+\end{equation}
+
+\paragraph{Solid Phase Momentum:}
+\begin{equation}
+\frac{\partial}{\partial t}(\alpha_s \rho_s \mathbf{v}_s) + \nabla \cdot (\alpha_s \rho_s \mathbf{v}_s \mathbf{v}_s) = -\alpha_s \nabla P - \nabla P_s + \nabla \cdot \boldsymbol{\tau}_s + \alpha_s \rho_s \mathbf{g} + K_{ls}(\mathbf{v}_l - \mathbf{v}_s)
+\end{equation}
+where $P$ is the shared hydrodynamic pressure, $P_s$ is the solid particle pressure derived from the Kinetic Theory of Granular Flow (KTGF), $\boldsymbol{\tau}$ is the phase viscous stress tensor, and $K_{ls}$ is the interphase drag momentum exchange coefficient.
+
+\subsection{Interphase Drag Model (Wen and Yu / Gidaspow)}
+The interphase drag force momentum transfer coefficient $K_{ls}$ is calculated as:
+\begin{equation}
+K_{ls} = \frac{3}{4} C_D \frac{\alpha_s \alpha_l \rho_l}{d_p} |\mathbf{v}_s - \mathbf{v}_l| \alpha_l^{-2.65}
+\end{equation}
+where $d_p$ is the solid particle diameter, and $C_D$ is the single-particle drag coefficient as a function of relative particle Reynolds number $Re_p$.
+
+\subsection{Non-Newtonian Fluid Rheology (Herschel--Bulkley Model)}
+The shear-thinning yield stress drilling mud is modeled using the Herschel--Bulkley stress relation:
+\begin{equation}
+\boldsymbol{\tau}_l = \mu_{\text{eff}} \dot{\boldsymbol{\gamma}}
+\end{equation}
+where:
+\begin{equation}
+\mu_{\text{eff}} = \frac{\tau_y}{\dot{\gamma}} + K \dot{\gamma}^{n-1} \quad \text{for } \tau > \tau_y
+\end{equation}
+where $\tau_y$ is the yield stress, $K$ is the consistency index, $n$ is the flow behavior index, and $\dot{\gamma}$ is the shear rate tensor magnitude.
+\section{Finite Volume Method (FVM) Discretization in OpenFOAM}
+OpenFOAM discretizes the continuous partial differential equations over an arbitrary 3D control volume $V_P$ bounded by cell faces $f$ using the Finite Volume Method (FVM).
+
+\subsection{Integral Form of Transport Equations}
+Integrating the general phase transport equation over a control volume $V_P$ yields:
+\begin{equation}
+\int_{V_P} \frac{\partial (\alpha \rho \mathbf{v})}{\partial t} \, dV + \int_{V_P} \nabla \cdot (\alpha \rho \mathbf{v} \mathbf{v}) \, dV = -\int_{V_P} \alpha \nabla P \, dV + \int_{V_P} \nabla \cdot \boldsymbol{\tau} \, dV + \int_{V_P} \mathbf{S}_\phi \, dV
+\end{equation}
+
+Applying Gauss's Divergence Theorem converts the volume integrals of flux divergences into surface integrals over cell faces $f$:
+\begin{equation}
+\frac{\partial}{\partial t}(\alpha \rho \mathbf{v})_P V_P + \sum_{f} F_m \mathbf{v}_f = -(\alpha \nabla P)_P V_P + \sum_{f} \boldsymbol{\tau}_f \cdot \mathbf{A}_f + \mathbf{S}_P V_P
+\end{equation}
+where $F_m = (\alpha \rho \mathbf{v})_f \cdot \mathbf{A}_f$ is the mass flux through face $f$, and $\mathbf{A}_f$ is the face area vector pointing outwards from cell $P$.
+
+\subsection{Spatial and Temporal Discretization Schemes}
+To assemble algebraic linear systems ($[A]\{\phi\} = \{B\}$), OpenFOAM applies specific numerical schemes defined in the \texttt{system/fvSchemes} dictionary:
+\begin{itemize}
+    \item \textbf{Transient Time Schemes (\texttt{ddtSchemes}):} First-order Euler or second-order backward implicit scheme:
+    \begin{equation}
+    \frac{\partial \phi}{\partial t} \approx \frac{\phi^n - \phi^{n-1}}{\Delta t}
+    \end{equation}
+    \item \textbf{Convective Schemes (\texttt{divSchemes}):} \texttt{Gauss vanLeer} or \texttt{Gauss limitedLinear} schemes to ensure bounded volume fractions ($\alpha_s \in [0, 1]$) without numerical oscillations.
+    \item \textbf{Laplacian/Diffusion Schemes (\texttt{laplacianSchemes}):} \texttt{Gauss linear corrected} scheme to handle mesh non-orthogonality in the eccentric annular domain.
+\end{itemize}
+
+\subsection{Pressure-Velocity Coupling (PIMPLE Algorithm)}
+To resolve the non-linear coupling between pressure $P$ and phase velocity fields $\mathbf{v}_l, \mathbf{v}_s$, OpenFOAM uses the \texttt{PIMPLE} algorithm (a combination of PISO and SIMPLE) inside \texttt{twoPhaseEulerFoam}, solving momentum predictor steps followed by iterative pressure correction loops.
+\end{document}
