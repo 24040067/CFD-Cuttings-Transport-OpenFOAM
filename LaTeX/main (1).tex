@@ -1,0 +1,136 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\geometry{margin=1in}
+
+\title{\textbf{Mathematical Formulation and FVM Discretization for CFD Simulation of Cuttings Transport in an Eccentric Horizontal Wellbore}}
+\author{\textbf{Final Year Project (FYP) Methodology}}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This document outlines the governing partial differential equations and Finite Volume Method (FVM) numerical discretization schemes for predicting solid-liquid multiphase cuttings transport, bed erosion, and flow pattern transitions in a 3D eccentric horizontal annulus ($e = 0.623$). The mathematical framework employs an Eulerian--Eulerian two-fluid continuum model coupled with non-Newtonian Herschel--Bulkley fluid rheology, Kinetic Theory of Granular Flow (KTGF), and the Wen and Yu interphase drag model, specifically configured for implementation in OpenFOAM (\texttt{twoPhaseEulerFoam}).
+\end{abstract}
+
+\section{Physical Assumptions \& Modeling Limitations}
+To establish a physically accurate yet computationally efficient numerical model for the 16-run parametric simulation matrix, the following fundamental assumptions are adopted based on established literature:
+\begin{enumerate}
+    \item \textbf{Isothermal Flow ($T = \text{const}$):} The temperature variation along the wellbore test section is negligible, allowing the thermal energy conservation equation to be decoupled and omitted.
+    \item \textbf{Incompressible Continuum Phases:} Both the continuous drilling mud phase ($\rho_l = \text{const}$) and the solid cuttings phase ($\rho_s = \text{const}$) are treated as interpenetrating continua fulfilling $\alpha_l + \alpha_s = 1$.
+    \item \textbf{Rigid Spherical Particles:} Solid cuttings are modeled as rigid non-deformable spheres with a constant mean diameter ($d_p = 2.0\text{ mm}$) and uniform density ($\rho_s = 2650\text{ kg/m}^3$).
+    \item \textbf{Zero Interphase Mass Transfer:} No mass exchange occurs between the liquid drilling mud and the solid rock particles ($\dot{m}_{ls} = 0$).
+    \item \textbf{Fixed Eccentric Geometry:} The annulus has a fixed horizontal inclination ($90^\circ$) and eccentricity ($e = 0.623$), neglecting drillpipe whirl, sag variations, or structural bending dynamics.
+    \item \textbf{No-Slip \& Granular Wall Conditions:} Liquid phase obeys a strict no-slip condition at both inner and outer walls. Solid particle-wall interactions utilize specularity and restitution coefficients ($e = 0.9$) within KTGF.
+\end{enumerate}
+
+\section{Task 1: Derivation of Governing Transport Equations}
+In the Eulerian--Eulerian framework, both phases share the computational domain simultaneously through volume fraction weightings.
+
+\subsection{Phase Conservation of Mass (Continuity Equations)}
+Assuming incompressible liquid ($l$) and solid ($s$) phases without phase change:
+\begin{equation}
+\frac{\partial}{\partial t} (\alpha_l \rho_l) + \nabla \cdot (\alpha_l \rho_l \mathbf{v}_l) = 0
+\end{equation}
+
+\begin{equation}
+\frac{\partial}{\partial t} (\alpha_s \rho_s) + \nabla \cdot (\alpha_s \rho_s \mathbf{v}_s) = 0
+\end{equation}
+subject to the space-occupying constraint:
+\begin{equation}
+\alpha_l + \alpha_s = 1
+\end{equation}
+
+\subsection{Phase Conservation of Momentum}
+The 3D Navier--Stokes momentum transport equations for both interpenetrating phases account for shared hydrodynamic pressure gradient, viscous stresses, gravity, solid particle pressure, and interphase drag momentum transfer:
+
+\paragraph{Liquid Phase Momentum:}
+\begin{equation}
+\frac{\partial}{\partial t}(\alpha_l \rho_l \mathbf{v}_l) + \nabla \cdot (\alpha_l \rho_l \mathbf{v}_l \mathbf{v}_l) = -\alpha_l \nabla P + \nabla \cdot \boldsymbol{\tau}_l + \alpha_l \rho_l \mathbf{g} + K_{ls}(\mathbf{v}_s - \mathbf{v}_l)
+\end{equation}
+
+\paragraph{Solid Phase Momentum:}
+\begin{equation}
+\frac{\partial}{\partial t}(\alpha_s \rho_s \mathbf{v}_s) + \nabla \cdot (\alpha_s \rho_s \mathbf{v}_s \mathbf{v}_s) = -\alpha_s \nabla P - \nabla P_s + \nabla \cdot \boldsymbol{\tau}_s + \alpha_s \rho_s \mathbf{g} + K_{ls}(\mathbf{v}_l - \mathbf{v}_s)
+\end{equation}
+where $P$ is the shared static pressure, $P_s$ is the granular solid pressure derived from Kinetic Theory of Granular Flow (KTGF), $\boldsymbol{\tau}$ is the phase viscous stress tensor, and $K_{ls}$ is the interphase drag momentum exchange coefficient.
+
+\subsection{Interphase Drag Model (Wen and Yu Model)}
+Interphase momentum transfer between fluid and particles is governed by the Wen and Yu drag model:
+\begin{equation}
+K_{ls} = \frac{3}{4} C_D \frac{\alpha_s \alpha_l \rho_l}{d_p} |\mathbf{v}_s - \mathbf{v}_l| \alpha_l^{-2.65}
+\end{equation}
+where $C_D$ is the drag coefficient calculated as a function of relative particle Reynolds number $Re_p$.
+
+\subsection{Non-Newtonian Drilling Mud Rheology (Herschel--Bulkley Model)}
+The shear-thinning yield-stress drilling fluid behavior is incorporated using the Herschel--Bulkley stress tensor:
+\begin{equation}
+\boldsymbol{\tau}_l = \mu_{\text{eff}} \dot{\boldsymbol{\gamma}}
+\end{equation}
+
+\begin{equation}
+\mu_{\text{eff}} = \frac{\tau_y}{\dot{\gamma}} + K \dot{\gamma}^{n-1} \quad \text{for } \tau > \tau_y
+\end{equation}
+where $\tau_y$ is the yield stress, $K$ is the consistency index, $n$ is the flow behavior index, and $\dot{\gamma}$ is the shear rate tensor magnitude.
+
+\subsection{Omission of Thermal Energy Conservation Equation}
+Under the verified assumption of isothermal flow ($T = \text{const}$), thermodynamic variations along short wellbore test sections are negligible. Fluid density ($\rho_l$) and effective viscosity ($\mu_{\text{eff}}$) depend strictly on local shear rate ($\dot{\gamma}$) and phase concentrations ($\alpha_s$), decoupled from temperature. Consequently, the Conservation of Energy equation is omitted to save significant computational resources without impacting solution fidelity.
+
+\section{Task 2: Finite Volume Method (FVM) Discretization in OpenFOAM}
+OpenFOAM's \texttt{twoPhaseEulerFoam} solver discretizes the continuous transport equations over an arbitrary 3D control volume $V_P$ bounded by cell faces $f$ using the Finite Volume Method (FVM).
+
+\subsection{Integral Form of Transport Equations}
+Integrating the generalized phase transport equation over a control volume $V_P$ yields:
+\begin{equation}
+\int_{V_P} \frac{\partial (\alpha \rho \mathbf{v})}{\partial t} \, dV + \int_{V_P} \nabla \cdot (\alpha \rho \mathbf{v} \mathbf{v}) \, dV = -\int_{V_P} \alpha \nabla P \, dV + \int_{V_P} \nabla \cdot \boldsymbol{\tau} \, dV + \int_{V_P} \mathbf{S}_\phi \, dV
+\end{equation}
+
+Applying Gauss's Divergence Theorem converts volume integrals of flux divergences into surface integrals over cell faces $f$:
+\begin{equation}
+\frac{\partial}{\partial t}(\alpha \rho \mathbf{v})_P V_P + \sum_{f} F_m \mathbf{v}_f = -(\alpha \nabla P)_P V_P + \sum_{f} \boldsymbol{\tau}_f \cdot \mathbf{A}_f + \mathbf{S}_P V_P
+\end{equation}
+where $F_m = (\alpha \rho \mathbf{v})_f \cdot \mathbf{A}_f$ represents mass flux through face $f$, and $\mathbf{A}_f$ is the outward-pointing face area vector.
+
+\subsection{Numerical Discretization Schemes (\texttt{system/fvSchemes})}
+To convert differential equations into algebraic matrix systems ($[A]\{\phi\} = \{B\}$), OpenFOAM utilizes specific numerical schemes:
+\begin{itemize}
+    \item \textbf{Time Discretization (\texttt{ddtSchemes}):} First-order implicit Euler scheme with temporal resolution $\Delta t = 0.0005\text{ s}$:
+    \begin{equation}
+    \frac{\partial \phi}{\partial t} \approx \frac{\phi^n - \phi^{n-1}}{\Delta t}
+    \end{equation}
+    \item \textbf{Convective Discretization (\texttt{divSchemes}):} High-resolution \texttt{Gauss vanLeer} and \texttt{Gauss limitedLinear} schemes to enforce strict physical bounds on volume fractions ($\alpha_s \in [0, \alpha_{s,\max}]$) without numerical oscillations.
+    \item \textbf{Diffusion Discretization (\texttt{laplacianSchemes}):} \texttt{Gauss linear corrected} scheme to compensate for mesh non-orthogonality near the eccentric annular gap.
+\end{itemize}
+
+\subsection{Pressure-Velocity Coupling (\texttt{PIMPLE} Algorithm)}
+Non-linear pressure-velocity coupling is resolved using the \texttt{PIMPLE} algorithm (combining PISO and SIMPLE) inside \texttt{twoPhaseEulerFoam}, solving sequential momentum predictor steps and pressure correction loops until field residuals converge below $10^{-6}$.
+
+\section{Alignment with FYP Objectives \& Case Execution}
+The mathematical and numerical formulations directly fulfill the three core FYP objectives:
+\begin{itemize}
+    \item \textbf{Objective 1 (Validation):} The model framework is benchmarked against Osgouei (2010) flow-loop experimental data for annular pressure drop ($\Delta P/L$) and cuttings concentration ($C_c\%$).
+    \item \textbf{Objective 2 (16-Run Matrix):} Boundary conditions combine inner pipe rotation (\texttt{rotatingWallVelocity}: 0, 40, 80, 120 RPM) and fluid inlet velocity (\texttt{velocityInlet}: 1.2, 1.6, 2.0, 2.4 m/s).
+    \item \textbf{Objective 3 (Flow Regime Mapping):} Bounded volume fraction contours ($\alpha_s$) extracted across cross-sectional planes in ParaView allow precise mapping of flow regime transitions (Stationary Bed $\rightarrow$ Moving Bed $\rightarrow$ Dispersed Flow).
+\end{itemize}
+
+\begin{thebibliography}{99}
+\bibitem{Khaled2020}
+M.~S. Khaled, R.~Hasan, M.~A. Rahman, I.~Hassan, and P.~Maheshwari, ``CFD approach to investigate the effect of mud rheology on cuttings removal in horizontal wells,'' in \emph{AADE Fluids Technical Conference and Exhibition}, Houston, TX, 2020.
+
+\bibitem{Hajipour2020}
+M.~Hajipour, ``CFD simulation of turbulent flow of drill cuttings and parametric studies in a horizontal annulus,'' \emph{SN Applied Sciences}, vol.~2, no.~6, p. 1146, 2020.
+
+\bibitem{Shehab2015}
+M.~Shehab, ``Cuttings transportation in horizontal wellbores using CFD ANSYS CFX,'' Master's thesis, Universiti Teknologi PETRONAS, 2015.
+
+\bibitem{OpenFOAM2020}
+OpenCFD, \emph{OpenFOAM User Guide v2006}, OpenCFD Ltd., 2020.
+\end{thebibliography}
+
+\end{document}
