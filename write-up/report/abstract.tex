@@ -1,1 +1,10 @@
-This is an abstract.
+% ----------------- ABSTRACT (ENGLISH) -----------------
+\newpage
+\phantomsection
+\chapter*{ABSTRACT}
+\addcontentsline{toc}{chapter}{ABSTRACT}
+
+\noindent Efficient solid--liquid cuttings transport in horizontal wellbore annuli is vital to mitigate cuttings-bed formation, pipe sticking, and uncontrolled annular pressure spikes during Managed Pressure Drilling (MPD) operations. The transport mechanism is severely hindered by wellbore eccentricity ($e = 0.623$), where fluid deceleration in the narrow clearance underneath the drillpipe promotes rapid particle settling. This Final Year Project 1 (FYP 1) establishes a comprehensive computational fluid dynamics (CFD) framework using OpenFOAM (\texttt{twoPhaseEulerFoam}), employing an Eulerian--Eulerian two-fluid model coupled with non-Newtonian Herschel--Bulkley drilling mud rheology, the Kinetic Theory of Granular Flow (KTGF), and the Wen and Yu drag closure. Prior to executing the 3D multiphase simulation matrix in FYP 2, a three-stage single-phase numerical verification was carried out: (1) verification of finite-volume discretization schemes and CFL stability ($\text{Co} \le 0.20$) using a Stokes cavity benchmark, (2) verification of curved non-orthogonal eccentric meshing and rotating inner wall boundary conditions (60 RPM) using Newtonian Navier--Stokes (\texttt{icoFoam}), and (3) resolution of yield-stress shear-thinning mud rheology using the Herschel--Bulkley formulation (\texttt{pimpleFoam}). Preliminary verification confirms the development of a rigid unyielded plug core ($\nu_0 = 1.0 \times 10^{-2}\text{ m}^2/\text{s}$) in the wide upper clearance, providing critical static suspension, alongside localized shear-thinning in the narrow bottom gap ($\nu \approx 1.1 \times 10^{-4}\text{ m}^2/\text{s}$), producing the hydrodynamic drag needed for bed erosion. These preliminary findings verify solver stability and establish the basis for the 16-case parametric matrix and experimental validation in FYP 2.
+
+\vspace{0.6cm}
+\noindent \textbf{Keywords:} Cuttings Transport, OpenFOAM, Eccentric Annulus, Eulerian--Eulerian Multiphase Flow, Herschel--Bulkley Mud, Numerical Verification.
