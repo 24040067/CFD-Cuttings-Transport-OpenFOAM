@@ -1,1 +1,52 @@
-\chapter{Introduction}
+% ================= CHAPTER 1 =================
+\chapter{INTRODUCTION}
+
+\section{Background of Study}
+Horizontal and extended-reach drilling technologies have become cornerstones of contemporary petroleum exploration, significantly expanding reservoir contact area and maximizing hydrocarbon recovery rates \citep{Khaled2020}. However, transitioning the wellbore trajectory from vertical to horizontal creates severe hydrodynamic challenges for hole cleaning and drill cuttings transport \citep{Hajipour2020}. In conventional vertical wellbores, the gravitational acceleration vector $\mathbf{g}$ acts collinear but opposite to the upward drilling mud circulation. Consequently, solid cuttings are conveyed upward primarily through viscous drag once the fluid velocity exceeds the terminal particle settling velocity. 
+
+In horizontal and highly deviated wellbores, gravity acts perpendicular to the axial mud flow stream, continuously pulling cuttings toward the bottom side of the casing. In practical field operations, the drill string deflects toward the lower wellbore wall under its own weight, creating an eccentric annular geometry ($e > 0$) \citep{Osgouei2010}. This eccentricity restricts the cross-sectional clearance beneath the drillpipe, substantially reducing local velocity and wall shear stress. Under these conditions, the fluid channels through the wide upper clearance where hydraulic resistance is minimal, leaving the narrow lower clearance prone to rapid particle deposition and cuttings-bed accumulation \citep{Shehab2015}. Ineffective cuttings removal causes severe operational failures, including excessive torque and drag, premature drill bit wear, pack-offs, mechanical pipe sticking, and dangerous annular pressure spikes during Managed Pressure Drilling (MPD) \citep{Khaled2020}.
+
+To optimize wellbore hydraulics and cuttings clearance, computational fluid dynamics (CFD) provides a cost-effective, high-resolution investigative platform. By employing the open-source Finite Volume Method (FVM) solver OpenFOAM, the interpenetrating multiphase flow of drilling mud and granular cuttings can be resolved using the Eulerian--Eulerian two-fluid framework via \texttt{twoPhaseEulerFoam}.
+
+\section{Problem Statement}
+In an eccentric horizontal annulus ($e = 0.623$), non-uniform annular clearance creates an asymmetric flow field:
+\begin{enumerate}
+    \item \textbf{Low-Shear Fluid Channeling:} The circulating fluid preferentially diverts into the wider upper gap. In the narrow clearance beneath the drillpipe, local fluid velocities fall below the critical threshold required to mobilize settled cuttings.
+    \item \textbf{Drilling Mud Rheological Transitions:} Drilling fluids exhibit yield-stress shear-thinning (Herschel--Bulkley) behavior. In low-shear regions of the wide gap, the shear stress may fall below the fluid yield point ($\tau < \tau_y$), forming an unyielded rigid plug. While this plug aids static suspension when circulation halts, improper rheological design exacerbates flow stagnation in the lower clearance.
+    \item \textbf{Coupled Multiphase Interactions:} The physical interactions governing cuttings bed erosion—including drillpipe rotation (0 to 120 RPM), particle granular pressure ($P_s$), and interphase drag ($K_{ls}$)—are highly coupled and non-linear. Many existing models oversimplify the carrier fluid as Newtonian or omit the Kinetic Theory of Granular Flow (KTGF), limiting predictive fidelity.
+\end{enumerate}
+
+\noindent Therefore, there is a clear academic and industrial need to establish, verify, and validate a comprehensive Eulerian--Eulerian CFD framework in OpenFOAM that accurately accounts for non-Newtonian rheology, drillpipe rotation, and granular collisions.
+
+\section{Research Objectives}
+In accordance with the undergraduate research guidelines for KIG4054 and KIG4055, the specific objectives of this project are:
+\begin{enumerate}
+    \item \textbf{To formulate and verify} a 3D Eulerian--Eulerian multiphase CFD framework in OpenFOAM coupled with non-Newtonian Herschel--Bulkley mud rheology and the Kinetic Theory of Granular Flow (KTGF).
+    
+    \item \textbf{To evaluate and validate} the coupled effects of drillpipe rotation and fluid circulation velocity on annular frictional pressure loss and cuttings bed erosion in an eccentric horizontal wellbore against experimental benchmark data.
+    
+    \item \textbf{To map and classify} solid--liquid flow regime transitions (Stationary Bed $\rightarrow$ Moving Bed $\rightarrow$ Dispersed Flow) across the eccentric annular clearance under varying operational drilling conditions.
+\end{enumerate}
+
+\section{Scope and Limitations of Research}
+The boundaries and physical assumptions of this FYP 1 research are as follows:
+\begin{enumerate}
+    \item \textbf{Scope of FYP 1:} Restricted to mathematical derivation, literature synthesis, and baseline single-phase verification. Full 3D multiphase parametric matrix runs and experimental validations are allocated to FYP 2.
+    \item \textbf{Computational Environment:} OpenFOAM v2406 running on Ubuntu 24.04 LTS (WSL2) with ParaView 6.2.0 for field post-processing.
+    \item \textbf{Annular Geometry:} Annulus inner drillpipe radius $R_p = 0.025\text{ m}$, wellbore casing radius $R_{\text{wb}} = 0.05\text{ m}$, hydraulic diameter $D_h = 0.05\text{ m}$, and fixed eccentricity $e = 0.623$ at horizontal inclination ($90^\circ$). Drillpipe whirling, structural sag variations, and axial vibration are neglected.
+    \item \textbf{Solid Phase Properties:} Cuttings are modeled as uniform, rigid, spherical sandstone particles ($d_p = 2.0\text{ mm}$, $\rho_s = 2650\text{ kg/m}^3$) with an interparticle restitution coefficient of $e = 0.90$.
+    \item \textbf{Thermal Modeling:} Flow is assumed strictly isothermal ($T = \text{const}$). Thermal energy conservation is decoupled and omitted.
+\end{enumerate}
+
+\section{Significance of Study}
+This study provides an open-source, reproducible CFD workflow for cuttings transport analysis in extended-reach drilling. By demonstrating that single-phase numerical schemes and non-Newtonian rheology can be validated prior to multiphase coupling, the methodology minimizes numerical divergence risks. The findings will provide petroleum engineers with predictive insight into minimum flow rates and drillpipe rotation speeds required to prevent stuck-pipe occurrences during MPD operations.
+
+\section{Report Organization}
+This report is organized into five consecutive chapters in compliance with the Faculty of Engineering FYP 1 syllabus:
+\begin{itemize}
+    \item \textbf{Chapter 1 (Introduction):} Presents research background, problem statement, measurable objectives, scope, and significance.
+    \item \textbf{Chapter 2 (Literature Review):} Provides a critical review of cuttings transport mechanisms, eccentricity, drillpipe rotation, fluid rheology, and multiphase modeling methods following an inverted pyramid approach.
+    \item \textbf{Chapter 3 (Methodology):} Details the Eulerian--Eulerian governing equations, constitutive closures, FVM discretization schemes, boundary conditions, and the FYP 2 parametric plan.
+    \item \textbf{Chapter 4 (Preliminary Results and Discussion):} Discusses velocity, pressure, and viscosity fields obtained from the three single-phase verification benchmarks.
+    \item \textbf{Chapter 5 (Research Work Schedule):} Summarizes Semester 1 milestones and provides the Gantt chart work plan for Semester 1 and Semester 2.
+\end{itemize}
