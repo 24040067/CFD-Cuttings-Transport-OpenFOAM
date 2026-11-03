@@ -1,1 +1,10 @@
-Ini adalah abstrak.
+% ----------------- ABSTRAK (BAHASA MELAYU) -----------------
+\newpage
+\phantomsection
+\chapter*{ABSTRAK}
+\addcontentsline{toc}{chapter}{ABSTRAK}
+
+\noindent Pengangkutan keratan gerudi pepejal-cecair yang berkesan di dalam anulus telaga mendatar adalah penting bagi mengelakkan pemendapan lapisan keratan pasir (\textit{cuttings bed}), perlekatan mekanikal paip gerudi (\textit{pipe sticking}), dan lonjakan tekanan hidraulik yang tidak terkawal semasa operasi Penggerudian Tekanan Terurus (MPD). Fenomena ini bertambah kritikal disebabkan keeksentrikan geometri paip gerudi ($e = 0.623$), di mana ruang anulus sempit di bahagian bawah menyebabkan penurunan halaju bendalir tempatan secara ketara. Laporan Projek Tahun Akhir 1 (FYP 1) ini merumuskan rangka kerja dinamik bendalir pengiraan (CFD) berasaskan perisian sumber terbuka OpenFOAM (\texttt{twoPhaseEulerFoam}) menggunakan model kontinum dua-bendalir Eulerian--Eulerian yang digandingkan bersama reologi lumpur bukan-Newtonian Herschel--Bulkley, Teori Kinetik Aliran Butiran (KTGF), dan model seretan fasa Wen--Yu. Sebelum melaksanakan simulasi multifasa 3D dalam FYP 2, kajian pengesahan berperingkat tiga tahap bagi aliran fasa tunggal telah disempurnakan: (1) pengesahan penumpuan skema pembezaan FVM dan kestabilan Courant ($\text{Co} \le 0.20$) menerusi aliran rayapan Stokes (\texttt{stokesCavity}), (2) pengesahan grid tak ortogonal dan keadaan sempadan dinding berputar paip gerudi (60 RPM) menerusi Navier--Stokes Newtonian (\texttt{eccentricNS\_clean}), dan (3) pengesahan fenomena penipisan ricih dan pembentukan teras palam pegun (\textit{unyielded plug}) menerusi model Herschel--Bulkley (\texttt{eccentric\_HB}). Keputusan awal menunjukkan pembentukan palam pegun di ruang atas anulus ($\nu_0 = 1.0 \times 10^{-2}\text{ m}^2/\text{s}$) yang menyediakan daya apungan statik, serta penurunan kelikatan sehingga dua magnitud ($\nu \approx 1.1 \times 10^{-4}\text{ m}^2/\text{s}$) di ruang sempit bawah yang menjana heretan hidrodinamik bagi hakisan lapisan mendapan. Penemuan ini mengesahkan keteguhan numerikal perisian bagi menjayakan matriks simulasi 16-kes dalam FYP 2.
+
+\vspace{0.6cm}
+\noindent \textbf{Kata Kunci:} Pengangkutan Keratan Gerudi, OpenFOAM, Telaga Mendatar Eksentrik, Aliran Dua Fasa Eulerian--Eulerian, Lumpur Herschel--Bulkley, Pengesahan Numerikal.
