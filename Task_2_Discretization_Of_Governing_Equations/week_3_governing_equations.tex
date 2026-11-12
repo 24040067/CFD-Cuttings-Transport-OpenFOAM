@@ -15,10 +15,6 @@
 
 \maketitle
 
-\begin{abstract}
-This document outlines the governing partial differential equations and Finite Volume Method (FVM) numerical discretization schemes for predicting solid-liquid multiphase cuttings transport, bed erosion, and flow pattern transitions in a 3D eccentric horizontal annulus ($e = 0.623$). The mathematical framework employs an Eulerian--Eulerian two-fluid continuum model coupled with non-Newtonian Herschel--Bulkley fluid rheology, Kinetic Theory of Granular Flow (KTGF), and the Wen and Yu interphase drag model, specifically configured for implementation in OpenFOAM (\texttt{twoPhaseEulerFoam}).
-\end{abstract}
-
 \section{Physical Assumptions \& Modeling Limitations}
 To establish a physically accurate yet computationally efficient numerical model for the 16-run parametric simulation matrix, the following fundamental assumptions are adopted based on established literature:
 \begin{enumerate}
@@ -44,7 +40,7 @@ Assuming incompressible liquid ($l$) and solid ($s$) phases without phase change
 \end{equation}
 subject to the space-occupying constraint:
 \begin{equation}
-\alpha_l + \alpha_s = 1
+\alpha_l + \alpha_s = 1 
 \end{equation}
 
 \subsection{Phase Conservation of Momentum}
