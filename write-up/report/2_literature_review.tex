@@ -1,3 +1,4 @@
+
 % !TEX root = ./thesis.tex
 % =========================================================================
 % CHAPTER 2: LITERATURE REVIEW
@@ -22,10 +23,32 @@ Based on extensive experimental high-speed camera observations in horizontal flo
 \end{enumerate}
 
 Capturing the exact operational boundaries between these three regimes is essential for hole-cleaning design and directly motivates Objective 3 of the present study.
-
+\begin{figure}[htbp]
+    \centering
+    \begin{minipage}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/fig_particle_forces.png}
+        \caption{Hydrodynamic forces acting on a cutting particle.}
+        \label{fig:particle_forces}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/fig_flow_patterns.png}
+        \caption{Solid--liquid flow patterns in horizontal annuli.}
+        \label{fig:flow_patterns}
+    \end{minipage}
+    \caption{Fundamental mechanics of horizontal cuttings transport showing (a) local particle force balance and (b) flow regime transitions from stationary bed to dispersed suspension \citep{Shehab2015}.}
+    \label{fig:forces_and_regimes}
+\end{figure}
 \section{Critical Literature Review and Justification of Simulation Parameters}
 A numerical simulation is only as reliable as the physical realism of its input parameters and its linkage to verified experimental benchmarks \citep{Li2026}. Rather than selecting arbitrary geometry or flow conditions, every parameter in the present OpenFOAM framework is systematically anchored to established experimental flow-loop studies and peer-reviewed CFD benchmarks.
-
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/fig_metu_flow_loop.png}
+    \caption{Schematic of the Middle East Technical University (METU) horizontal cuttings transport flow-loop facility ($L = 3.3\text{ m}, D_w = 0.0739\text{ m}, D_p = 0.0470\text{ m}, e = 0.623$) used as the geometric and experimental validation benchmark \citep{Osgouei2010, Sorgun2010}.}
+    \label{fig:metu_loop}
+\end{figure}
 \subsection{Justification of Annular Geometry and Eccentricity ($D_w, D_p, L, e = 0.623$)}
 In real horizontal drilling operations, the drillstring never remains concentric within the borehole; gravity pulls the heavy steel pipe toward the bottom wall \citep{Sorgun2010, Saad2024}. Dimensionless pipe eccentricity ($e$) is defined as:
 \begin{equation}
@@ -54,6 +77,13 @@ To systematically capture the transition from a hazardous stationary cuttings be
     \item \textbf{Superficial Fluid Inlet Velocity ($v_l = 1.2, 1.6, 2.0, 2.4\text{ m/s}$):} In their recent review of multiphase wellbore hydraulics, \citet{Khalili2025} highlighted that when annular fluid velocity falls below $1.5\text{ m/s}$, gravitational settling dominates and stationary cuttings beds rapidly form; once velocity surpasses $1.5\text{ m/s}$, axial drag and shear lift begin to dominate. Similarly, \citet{Osgouei2010} and \citet{Shehab2015} tested superficial velocities spanning $3.9\text{ to } 7.9\text{ ft/s}$ ($1.19\text{ to } 2.41\text{ m/s}$). Selecting $v_l = 1.2, 1.6, 2.0,\text{ and } 2.4\text{ m/s}$ strategically brackets this physical transition: $1.2\text{ m/s}$ captures the sub-critical stationary bed regime, $1.6\text{ m/s}$ captures the incipient moving-bed transition right above the $1.5\text{ m/s}$ threshold, and $2.0\text{--}2.4\text{ m/s}$ captures high-velocity turbulent suspension.
     \item \textbf{Drillpipe Rotational Speed ($\Omega = 0, 40, 80, 120\text{ RPM}$):} Early experimental work by \citet{Sanchez1999} and subsequent flow-loop investigations by \citet{Sorgun2010} and \citet{Osgouei2010} proved that mechanical rotation of the inner drillpipe significantly enhances cuttings removal in eccentric horizontal wells by imparting tangential Couette shear and secondary Taylor-like vortices that sweep cuttings from the narrow bottom gap into the high-velocity upper stream. However, \citet{Shehab2015} only validated two rotational speeds ($0\text{ and } 60\text{ RPM}$) in Newtonian water, while \citet{Khaled2021} noted that $0\text{ to } 200\text{ RPM}$ represents the critical operational range in field drilling, with diminishing returns and severe drillstring vibration risks occurring above $120\text{ RPM}$ \citep{Hajipour2020}. Therefore, evaluating $\Omega = 0, 40, 80,\text{ and } 120\text{ RPM}$ provides uniform $40\text{ RPM}$ increments that map the non-linear onset of rotational bed erosion across typical field rotary speeds \citep{Osgouei2010, Hajipour2020}.
 \end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.75\textwidth]{figures/fig_pipe_rotation.png}
+    \caption{Schematic illustration of tangential sweeping and cuttings bed erosion induced by inner drillpipe rotation in an eccentric horizontal annulus \citep{Shehab2015}.}
+    \label{fig:pipe_rotation_effect}
+\end{figure}
 
 \subsection{Justification of Non-Newtonian Drilling Mud Rheology ($\tau_y, K, n$)}
 A major limitation in several foundational CFD studies—most notably \citet{Shehab2015}—is the simplification of the carrier liquid as pure Newtonian water ($\rho_l = 998.5\text{ kg/m}^3, \mu = 0.001\text{ Pa}\cdot\text{s}$). While using water is valuable for initial baseline validation against water-sand flow-loop runs in \citet{Osgouei2010}, real field drilling fluids are complex bentonite or polymer suspensions that exhibit strong non-Newtonian behavior \citep{Sorgun2010, Hajipour2020}.
@@ -87,28 +117,50 @@ To clearly position the present work within the body of knowledge, the primary b
     \item \textbf{\citet{Hajipour2020} \& \citet{Khaled2020} (Commercial Non-Newtonian CFD Benchmarks):} Utilized Eulerian--Eulerian KTGF models in commercial CFD software to evaluate Herschel--Bulkley mud rheology, ROP, eccentricity, and rotation on cuttings concentration. \textit{Why cited:} Validates the theoretical coupling of Herschel--Bulkley rheology with KTGF granular temperature ($\Theta_s$) and Lun et al.\ / Syamlal--O'Brien solid stress closures. \textit{Critical Limitation:} Both studies relied on closed-source commercial solvers and focused primarily on bulk cross-sectional averaged cuttings concentration curves rather than systematically mapping the 2D/3D spatial viscosity field ($\nu_{\text{eff}}$) and classifying the cross-sectional phase regime boundaries (Stationary $\rightarrow$ Moving $\rightarrow$ Dispersed) in an open-source FVM environment.
 \end{enumerate}
 
+\begin{figure}[htbp]
+    \centering
+    \begin{minipage}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/fig_benchmark_0rpm.png}
+        \par\smallskip
+        \small (a) Stationary drillpipe ($0\text{ RPM}$)
+    \end{minipage}
+    \hfill
+    \begin{minipage}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/fig_benchmark_60rpm.png}
+        \par\smallskip
+        \small (b) Rotating drillpipe ($60\text{ RPM}$)
+    \end{minipage}
+    \caption{Benchmark validation of Eulerian--Eulerian CFD frictional pressure drop predictions against \citet{Osgouei2010} experimental flow-loop data at (a) $0\text{ RPM}$ and (b) $60\text{ RPM}$ using Newtonian water \citep{Shehab2015}.}
+    \label{fig:shehab_validation}
+\end{figure}
+
 \begin{table}[htbp]
 \centering
-\scriptsize
+\singlespacing
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.2}
 \caption{Critical Synthesis of Key Literature Benchmarks and Comparison with Present Study}
 \label{tab:lit_synthesis}
-\begin{tabularx}{\textwidth}{l l l l X}
+\begin{tabularx}{\textwidth}{p{2.1cm} p{2.3cm} p{2.2cm} p{2.6cm} X}
 \toprule
-\textbf{Author (Year)} & \textbf{Approach / Tool} & \textbf{Fluid Rheology} & \textbf{Key Parameters} & \textbf{Achievements \& Critical Limitations (Research Gap)} \\
+\textbf{Author (Year)} & \textbf{Approach / Tool} & \textbf{Fluid Rheology} & \textbf{Key Parameters} & \textbf{Achievements \& Critical Limitations} \\
 \midrule
-\citet{Osgouei2010} & Experimental Flow Loop & Water \& Gasified Mud & $D_w=73.9\text{ mm}$, $D_p=47\text{ mm}$, $e=0.623$, $0\text{--}120\text{ RPM}$ & \textbf{Achieved:} Ground-truth $\Delta P/L$, $C_c\%$, and visual flow pattern data. \textbf{Limitation:} No internal 3D velocity, shear rate, or local viscosity field resolution. \\
+\citet{Osgouei2010} & Experimental Flow Loop & Water \& Gasified Mud & $D_w=73.9\text{ mm}$, $D_p=47\text{ mm}$, $e=0.623$, $0\text{--}120\text{ RPM}$ & \textbf{Achieved:} Ground-truth $\Delta P/L$ and $C_c\%$ data. \textbf{Limitation:} No internal 3D velocity or local viscosity resolution. \\
 \addlinespace
-\citet{Sorgun2010} & Experimental \& MATLAB FD & Herschel--Bulkley \& Power Law & $e=0.623$, $v_l=0.6\text{--}1.8\text{ m/s}$, $0\text{--}120\text{ RPM}$ & \textbf{Achieved:} Quantified non-Newtonian mud cleaning in flow loop. \textbf{Limitation:} Numerical MATLAB model restricted to concentric Newtonian single-phase flow. \\
+\citet{Sorgun2010} & Experimental \& MATLAB FD & Herschel--Bulkley \& Power Law & $e=0.623$, $v_l=0.6\text{--}1.8\text{ m/s}$, $0\text{--}120\text{ RPM}$ & \textbf{Achieved:} Quantified non-Newtonian mud cleaning. \textbf{Limitation:} MATLAB model restricted to concentric Newtonian single-phase flow. \\
 \addlinespace
-\citet{Shehab2015} & 3D CFD (ANSYS CFX 15.0) & Newtonian Water Only & $e=0.623$, $d_p=2.01\text{ mm}$, $\text{ROP}=60\text{ ft/hr}$, $0\text{--}120\text{ RPM}$ & \textbf{Achieved:} Validated Eulerian CFD against Osgouei (2010) at $0, 60\text{ RPM}$. \textbf{Limitation:} Used water instead of non-Newtonian mud; commercial black-box solver; unstructured $1.95\text{M}$ mesh. \\
+\citet{Shehab2015} & 3D CFD (ANSYS CFX 15.0) & Newtonian Water Only & $e=0.623$, $d_p=2.01\text{ mm}$, $\text{ROP}=60\text{ ft/hr}$ & \textbf{Achieved:} Validated CFD vs.\ Osgouei (2010) at $0, 60\text{ RPM}$. \textbf{Limitation:} Used water only; closed commercial solver; $1.95\text{M}$ unstructured mesh. \\
 \addlinespace
-\citet{Hajipour2020} & 3D CFD (Commercial TFM) & Herschel--Bulkley (LVM / HVM) & $e=0\text{--}0.8$, $0\text{--}150\text{ RPM}$, KTGF closures & \textbf{Achieved:} Demonstrated KTGF + Herschel--Bulkley accuracy vs.\ Tomren (1986). \textbf{Limitation:} Commercial closed solver; did not isolate unyielded plug vs.\ narrow-gap shear liquefaction fields. \\
+\citet{Hajipour2020} & 3D CFD (Commercial TFM) & Herschel--Bulkley (LVM / HVM) & $e=0\text{--}0.8$, $0\text{--}150\text{ RPM}$, KTGF closures & \textbf{Achieved:} Coupled KTGF + Herschel--Bulkley mud. \textbf{Limitation:} Proprietary solver; did not isolate unyielded plug vs.\ shear liquefaction. \\
 \addlinespace
-\citet{Khaled2020} & 3D CFD (Commercial TFM) & Non-Newtonian Muds & Eccentric horizontal annulus, $Y_p/P_v$ ratios & \textbf{Achieved:} Evaluated rheological sensitivity on hole cleaning. \textbf{Limitation:} Lacked open-source verification pipeline and regime transition mapping on Osgouei (2010) geometry. \\
+\citet{Khaled2020} & 3D CFD (Commercial TFM) & Non-Newtonian Muds & Eccentric annulus, $Y_p/P_v$ ratios & \textbf{Achieved:} Evaluated rheological impact on cleaning. \textbf{Limitation:} Lacked open-source verification pipeline on Osgouei geometry. \\
 \addlinespace
-\citet{Li2026} & Bibliometric \& Critical Review & Multiphase / Non-Newtonian & Cross-scale bed-state variables (625 studies) & \textbf{Achieved:} Identified bridge variables ($\alpha_s$, $\Delta P/L$, ECD) and model fidelity trade-offs. \textbf{Limitation:} Review paper calling for transparent, geometry-matched CFD validation workflows. \\
+\citet{Li2026} & Bibliometric \& Critical Review & Multiphase / Non-Newtonian & Cross-scale bed-state variables (625 studies) & \textbf{Achieved:} Defined bridge variables ($\alpha_s$, $\Delta P/L$, ECD). \textbf{Limitation:} Review paper calling for transparent CFD validation workflows. \\
 \addlinespace
-\textbf{Present Study (2026)} & \textbf{OpenFOAM v2406 (\texttt{twoPhaseEulerFoam})} & \textbf{Newtonian \& Herschel--Bulkley} & \textbf{$e=0.623$, $d_p=2.01\text{ mm}$, 16-Run Matrix ($v_l \times \Omega$)} & \textbf{Novelty:} Open-source FVM implementation; 3-stage single-phase physical verification (\texttt{stokesCavity}, \texttt{eccentricNS}, \texttt{eccentric\_HB}) + full non-Newtonian KTGF multiphase regime mapping. \\
+\textbf{Present Study (2026)} & \textbf{OpenFOAM v2406} & \textbf{Newtonian \& Herschel--Bulkley} & \textbf{$e=0.623$, $d_p=2.01\text{ mm}$, 16-Run Matrix} & \textbf{Novelty:} Open-source FVM; 3-stage single-phase verification + full non-Newtonian KTGF multiphase regime mapping. \\
 \bottomrule
 \end{tabularx}
 \end{table}
